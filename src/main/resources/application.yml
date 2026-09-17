@@ -1,0 +1,31 @@
+server:
+  port: 8085
+spring:
+  kafka:
+    producer:
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      bootstrap-servers: localhost:9092
+    consumer:
+      group-id: livetest-java-spring-group
+      auto-offset-reset: earliest
+      bootstrap-servers: localhost:9092
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      properties:
+        spring:
+          json:
+            trusted:
+              packages: '*'
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+  application:
+    name: softdesignlivetest
+  data:
+    mongodb:
+      port: '27017'
+      host: localhost
+      authentication-database: admin
+      username: root
+      database: livetest
+      password: root
+mongock:
+  migration-scan-package: com.softdesign.livetest.migration.mongo
