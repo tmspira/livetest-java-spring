@@ -50,7 +50,7 @@ public class VendasController {
         try {
             var venda = vendaService.getById(id);
 
-            return ResponseEntity.accepted().body(VendaDTO.from(venda));
+            return ResponseEntity.ok().body(VendaDTO.from(venda));
         } catch (Exception exception) {
             LOGGER.error(exception.getMessage(), exception);
             throw exception;
@@ -69,6 +69,7 @@ public class VendasController {
         }
     }
 
+    // Pedido pra ser criado no live coding:
     @PostMapping("/vendas-produtos")
     public ResponseEntity<VendaDTO> createComProdutos(@RequestBody @Valid CreateVendaComProdutosRequest createVendaRequest) {
         try {
