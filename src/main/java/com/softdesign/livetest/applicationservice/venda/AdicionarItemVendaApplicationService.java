@@ -7,6 +7,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+
 @Service
 public class AdicionarItemVendaApplicationService {
 
@@ -23,25 +25,36 @@ public class AdicionarItemVendaApplicationService {
 
     public void executar(String vendId, String produtoId, Integer quantidade) {
 
-        LOGGER.info("AdicionarItemVendaApplicationService.executar - [{}] [{}] [{}]", vendId, produtoId, quantidade);
+        LOGGER.info("AdicionarItemVendaApplicationService.executar - [{}] [{}] [{}]",
+                vendId, produtoId, quantidade);
 
         var venda = vendaService.getById(vendId);
 
         var produto = this.produtoService.getById(produtoId);
 
-        var itemOptional = venda.items().stream().filter(
-                itemVenda -> itemVenda.produtoId().equals(produto.id())).findFirst();
+        var itemOptional = venda.items().stream()
+                .filter(itemVenda -> itemVenda.produtoId().equals(produto.id()))
+                .findFirst();
 
         if (itemOptional.isPresent()) {
             var item = itemOptional.get();
-            var itemModificado = item.withValorTotal(item.valorTotal() + (quantidade * produto.valor()))
-                    .withQuantidade(item.quantidade() + quantidade);
-            venda.items().set(venda.items().indexOf(item), itemModificado);
-        } else {
-            venda.items().add(new ItemVenda(produto.id(), quantidade, quantidade * produto.valor()));
-        }
 
-        var valorTotalVenda = venda.items().stream().mapToDouble(ItemVenda::valorTotal).sum();
+            var valorAdicional = produto.valor().multiply(BigDecimal.valueOf(quantidade));
+
+            var itemModificado = item
+                    .withValorTotal(item.valorTotal().add(valorAdicional))
+                    .withQuantidade(item.quantidade() + quantidade);
+
+            venda.items().set(venda.items().indexOf(item), itemModificado);
+
+        } else {
+            var valorTotalItem = produto.valor().multiply(BigDecimal.valueOf(quantidade));
+
+            venda.items().add(new ItemVenda(produto.id(), quantidade, valorTotalItem));
+        }
+        var valorTotalVenda = venda.items().stream()
+                .map(ItemVenda::valorTotal)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
 
         vendaService.update(venda.withValorTotal(valorTotalVenda));
     }
