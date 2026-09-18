@@ -28,7 +28,7 @@ public class ProdutoService {
         var optionalProduto = produtoMongoRepository.findById(produto.id());
 
         if (optionalProduto.isEmpty()) {
-            throw new VendaNotFound("cliente não encontrado - " + produto.id());
+            throw new ProdutoNotFound("cliente não encontrado - " + produto.id());
         }
 
         return produtoMongoRepository.save(produto);
@@ -38,7 +38,7 @@ public class ProdutoService {
         var optionalProduto = produtoMongoRepository.findById(produtoId);
 
         return optionalProduto.orElseThrow(() ->
-                new VendaNotFound("produto não encontrado - " + produtoId));
+                new ProdutoNotFound("produto não encontrado - " + produtoId));
     }
 
     public List<Produto> listAll() {

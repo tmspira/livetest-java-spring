@@ -4,6 +4,7 @@ import com.softdesign.livetest.applicationservice.venda.CreateVendaApplicationSe
 import com.softdesign.livetest.domain.venda.VendaService;
 import com.softdesign.livetest.domain.venda.adiciolnaritemvenda.AdicionarItemVendaMessage;
 import com.softdesign.livetest.domain.venda.adiciolnaritemvenda.AdicionarItemVendaProducer;
+import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
@@ -60,6 +61,18 @@ public class VendasController {
     public ResponseEntity<VendaDTO> createa(@RequestBody CreateVendaRequest createVendaRequest) {
         try {
             var venda = createVendaApplicationService.execute(createVendaRequest.clienteId());
+            var createdUri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(venda.id()).toUri();
+            return ResponseEntity.created(createdUri).body(VendaDTO.from(venda));
+        } catch (Exception exception) {
+            LOGGER.error(exception.getMessage(), exception);
+            throw exception;
+        }
+    }
+
+    @PostMapping("/vendas-produtos")
+    public ResponseEntity<VendaDTO> createComProdutos(@RequestBody @Valid CreateVendaComProdutosRequest createVendaRequest) {
+        try {
+            var venda = createVendaApplicationService.execute(createVendaRequest.clienteId(), createVendaRequest.produtos());
             var createdUri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(venda.id()).toUri();
             return ResponseEntity.created(createdUri).body(VendaDTO.from(venda));
         } catch (Exception exception) {

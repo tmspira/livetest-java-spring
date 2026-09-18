@@ -10,4 +10,5 @@ public record ItemVenda(String produtoId, Integer quantidade, Double valorTotal)
         return new ItemVenda(this.produtoId, this.quantidade, valorTotal);
     }
 
+
 }
