@@ -1,14 +1,11 @@
-package com.softdesign.livetest.domain.service;
+package com.softdesign.livetest.domain.cliente;
 
-import br.com.six2six.fixturefactory.Fixture;
-import com.softdesign.livetest.BaseTestSuite;
-import com.softdesign.livetest.domain.cliente.Cliente;
-import com.softdesign.livetest.domain.cliente.ClienteNotFound;
-import com.softdesign.livetest.domain.cliente.ClienteService;
-import com.softdesign.livetest.fixture.ClienteFixture;
+import com.softdesign.livetest.mocks.ClienteMock;
 import com.softdesign.livetest.repository.cliente.ClienteMongoRepository;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -20,17 +17,23 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class ClienteServiceTest extends BaseTestSuite {
+class ClienteServiceTest {
 
     @Mock
     private ClienteMongoRepository clienteMongoRepository;
 
+    @InjectMocks
     private ClienteService clienteService;
+
+    private Cliente cliente;
+
+    @BeforeEach
+    void setUp() {
+        cliente = ClienteMock.criar();
+    }
 
     @Test
     void deveCriarCliente() {
-        clienteService = new ClienteService(clienteMongoRepository);
-        Cliente cliente = Fixture.from(Cliente.class).gimme(ClienteFixture.CLIENTE_MOCK);
 
         when(clienteMongoRepository.insert(cliente))
                 .thenReturn(cliente);
@@ -44,13 +47,11 @@ class ClienteServiceTest extends BaseTestSuite {
 
     @Test
     void deveAtualizarCliente() {
-        clienteService = new ClienteService(clienteMongoRepository);
-        Cliente cliente = Fixture.from(Cliente.class).gimme(ClienteFixture.CLIENTE_MOCK);
 
         when(clienteMongoRepository.findById(cliente.id()))
                 .thenReturn(Optional.of(cliente));
-
-        when(clienteMongoRepository.save(cliente)).thenReturn(cliente);
+        when(clienteMongoRepository.save(cliente))
+        .thenReturn(cliente);
 
         var resultado = clienteService.update(cliente);
 
@@ -62,8 +63,6 @@ class ClienteServiceTest extends BaseTestSuite {
 
     @Test
     void deveLancarExcecaoAoAtualizarClienteInexistente() {
-        clienteService = new ClienteService(clienteMongoRepository);
-        Cliente cliente = Fixture.from(Cliente.class).gimme(ClienteFixture.CLIENTE_MOCK);
 
         when(clienteMongoRepository.findById(cliente.id()))
                 .thenReturn(Optional.empty());
@@ -79,8 +78,6 @@ class ClienteServiceTest extends BaseTestSuite {
 
     @Test
     void deveBuscarClientePorId() {
-        clienteService = new ClienteService(clienteMongoRepository);
-        Cliente cliente = Fixture.from(Cliente.class).gimme(ClienteFixture.CLIENTE_MOCK);
 
         when(clienteMongoRepository.findById(cliente.id()))
                 .thenReturn(Optional.of(cliente));
@@ -94,8 +91,6 @@ class ClienteServiceTest extends BaseTestSuite {
 
     @Test
     void deveLancarExcecaoAoBuscarClienteInexistente() {
-        clienteService = new ClienteService(clienteMongoRepository);
-        Cliente cliente = Fixture.from(Cliente.class).gimme(ClienteFixture.CLIENTE_MOCK);
 
         when(clienteMongoRepository.findById(cliente.id()))
                 .thenReturn(Optional.empty());
@@ -110,8 +105,6 @@ class ClienteServiceTest extends BaseTestSuite {
 
     @Test
     void deveListarTodosOsClientes() {
-        clienteService = new ClienteService(clienteMongoRepository);
-        Cliente cliente = Fixture.from(Cliente.class).gimme(ClienteFixture.CLIENTE_MOCK);
 
         when(clienteMongoRepository.findAll())
                 .thenReturn(List.of(cliente));

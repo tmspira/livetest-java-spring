@@ -1,6 +1,5 @@
 package com.softdesign.livetest.domain.venda.adiciolnaritemvenda;
 
-import com.softdesign.livetest.applicationservice.venda.AdicionarItemVendaApplicationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -14,7 +13,6 @@ public class AdicionarItemVendaProducer {
     private final KafkaTemplate<String, AdicionarItemVendaMessage> kafkaTemplate;
 
     public AdicionarItemVendaProducer(
-            AdicionarItemVendaApplicationService adicionarItemVendaApplicationService,
             KafkaTemplate<String, AdicionarItemVendaMessage> kafkaTemplate) {
         this.kafkaTemplate = kafkaTemplate;
     }

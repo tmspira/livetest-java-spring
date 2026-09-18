@@ -2,6 +2,7 @@ package com.softdesign.livetest.applicationservice.venda;
 
 import com.softdesign.livetest.api.produto.ProdutoDTO;
 import com.softdesign.livetest.domain.cliente.ClienteService;
+import com.softdesign.livetest.domain.produto.Produto;
 import com.softdesign.livetest.domain.produto.ProdutoNotFound;
 import com.softdesign.livetest.domain.produto.ProdutoService;
 import com.softdesign.livetest.domain.venda.ItemVenda;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -52,21 +54,36 @@ public class CreateVendaApplicationService {
                 .map(ItemVenda::valorTotal)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-        var venda = new Venda(null, cliente.id(), valorTotal, items);
+        var venda = new Venda(
+                null,
+                cliente.id(),
+                valorTotal,
+                items
+        );
 
         return vendaService.create(venda);
     }
-    public void produtoValidator(List<ProdutoDTO> produtos) {
-        var items = produtos.stream()
-                .map(produto -> {
-                    if (produto.id() == null || produto.id().isBlank()) {
-                        throw new ProdutoNotFound("ID do produto não informado");
-                    }
 
-                    produtoService.getById(produto.id());
+    private void produtoValidator(List<ProdutoDTO> produtos) {
 
-                    return produto.toItemVenda();
-                })
+        var produtoIds = produtos.stream()
+                .map(ProdutoDTO::id)
                 .toList();
+
+        var produtosExistentes = produtoService.findAllByIds(produtoIds);
+
+        var idsExistentes = produtosExistentes.stream()
+                .map(Produto::id)
+                .collect(Collectors.toSet());
+
+        var produtosInexistentes = produtoIds.stream()
+                .filter(id -> !idsExistentes.contains(id))
+                .toList();
+
+        if (!produtosInexistentes.isEmpty()) {
+            throw new ProdutoNotFound(
+                    "Produtos não encontrados: " + produtosInexistentes
+            );
+        }
     }
 }
